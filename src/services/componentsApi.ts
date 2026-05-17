@@ -68,6 +68,17 @@ export async function deleteComponent(id: string): Promise<void> {
   }
 }
 
+export async function generateComponentFile(id: string): Promise<Blob | null> {
+  try {
+    const response = await fetch(`http://localhost:8080/generate?componentId=${encodeURIComponent(id)}`);
+    if (!response.ok) return null;
+    return await response.blob();
+  } catch (error) {
+    console.error(`Failed to generate file for component ${id}:`, error);
+    return null;
+  }
+}
+
 export async function updateComponentFields(
   id: string,
   fields: ComponentItem['fields']

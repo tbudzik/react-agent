@@ -5,7 +5,8 @@ import {
   createComponent,
   updateComponent,
   deleteComponent,
-  getComponent
+  getComponent,
+  generateComponentFile
 } from './services/componentsApi';
 import { createField, updateField, deleteField } from './services/fieldsApi';
 
@@ -152,6 +153,22 @@ function App() {
     })();
   };
 
+  const handleDownloadComponent = async () => {
+    if (!selectedComponent) return;
+    const blob = await generateComponentFile(selectedComponent.id);
+    if (!blob) return;
+
+    const fileName = `${selectedComponent.name.replace(/[^a-zA-Z0-9_\- ]/g, '_')}.txt`;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-sm">
@@ -288,6 +305,13 @@ function App() {
                       className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
                     >
                       Edytuj komponent
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadComponent}
+                      className="rounded-2xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+                    >
+                      Pobierz
                     </button>
                     <button
                       type="button"
