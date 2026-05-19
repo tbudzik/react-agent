@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -44,12 +47,38 @@ public class GenerateController {
             builder.append("  Max dł.: ").append(field.getMaxLength() != null ? field.getMaxLength() : "-").append("\n\n");
         });
 
-        String fileName = component.getName().replaceAll("[^a-zA-Z0-9_-]", "_") + ".txt";
-        byte[] content = builder.toString().getBytes(StandardCharsets.UTF_8);
+        StringBuilder filtersBuilder = new StringBuilder();
+        component.getFields().stream()
+                .filter(field -> field.isFilterable())
+                .forEach(field -> filtersBuilder.append(field.getName()).append("\n"));
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(content);
+        String textFileName = component.getName().replaceAll("[^a-zA-Z0-9_-]", "_") + ".txt";
+        String filtersFileName = "filtry.txt";
+        String zipFileName = component.getName().replaceAll("[^a-zA-Z0-9_-]", "_") + ".zip";
+        byte[] content = builder.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] filtersContent = filtersBuilder.toString().getBytes(StandardCharsets.UTF_8);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ZipOutputStream zos = new ZipOutputStream(baos)) {
+            ZipEntry entry = new ZipEntry(textFileName);
+            zos.putNextEntry(entry);
+            zos.write(content);
+            zos.closeEntry();
+
+            ZipEntry filtersEntry = new ZipEntry(filtersFileName);
+            zos.putNextEntry(filtersEntry);
+            zos.write(filtersContent);
+            zos.closeEntry();
+
+            zos.finish();
+            byte[] zipBytes = baos.toByteArray();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipFileName + "\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(zipBytes);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

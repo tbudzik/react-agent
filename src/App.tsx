@@ -158,7 +158,7 @@ function App() {
     const blob = await generateComponentFile(selectedComponent.id);
     if (!blob) return;
 
-    const fileName = `${selectedComponent.name.replace(/[^a-zA-Z0-9_\- ]/g, '_')}.txt`;
+    const fileName = `${selectedComponent.name.replace(/[^a-zA-Z0-9_\- ]/g, '_')}.zip`;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
