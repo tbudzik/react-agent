@@ -51,6 +51,7 @@ public class DataInitializer implements CommandLineRunner {
                 "string",
                 true,
                 true,
+                1,
                 2,
                 50,
                 component1
@@ -63,6 +64,7 @@ public class DataInitializer implements CommandLineRunner {
                 "string",
                 true,
                 true,
+                2,
                 5,
                 100,
                 component1
@@ -76,6 +78,7 @@ public class DataInitializer implements CommandLineRunner {
                 "date",
                 false,
                 false,
+                0,
                 null,
                 null,
                 component2

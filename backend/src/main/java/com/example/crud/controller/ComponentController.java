@@ -4,6 +4,7 @@ import com.example.crud.model.ComponentEntity;
 import com.example.crud.model.FieldEntity;
 import com.example.crud.dto.ComponentDTO;
 import com.example.crud.dto.FieldDTO;
+import com.example.crud.dto.FieldOrderDTO;
 import com.example.crud.repository.ComponentRepository;
 import com.example.crud.repository.FieldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,18 @@ public class ComponentController {
 
     private ComponentDTO entityToDTO(ComponentEntity entity) {
         List<FieldDTO> fieldDTOs = entity.getFields().stream()
-                .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getMinLength(), f.getMaxLength()))
+                .sorted((a, b) -> a.getOrderOnList().compareTo(b.getOrderOnList()))
+                .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getOrderOnList(), f.getMinLength(), f.getMaxLength()))
                 .collect(Collectors.toList());
         return new ComponentDTO(entity.getUuid(), entity.getName(), entity.isExportCsv(), entity.isEditable(), entity.isCopyable(), fieldDTOs);
+    }
+
+    private int getNextOrderOnList(ComponentEntity component) {
+        return component.getFields().stream()
+                .filter(FieldEntity::isCurrentOnList)
+                .map(FieldEntity::getOrderOnList)
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
     }
 
     @GetMapping
@@ -83,7 +93,8 @@ public class ComponentController {
         return componentRepository.findByUuid(componentId)
                 .map(entity -> {
                     List<FieldDTO> fields = entity.getFields().stream()
-                            .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getMinLength(), f.getMaxLength()))
+                            .sorted((a, b) -> a.getOrderOnList().compareTo(b.getOrderOnList()))
+                            .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getOrderOnList(), f.getMinLength(), f.getMaxLength()))
                             .collect(Collectors.toList());
                     return ResponseEntity.ok(fields);
                 })
@@ -95,9 +106,10 @@ public class ComponentController {
         return componentRepository.findByUuid(componentId)
                 .map(component -> {
                     String uuid = "field-" + System.currentTimeMillis();
-                    FieldEntity field = new FieldEntity(uuid, dto.getName(), dto.getType(), dto.isFilterable(), dto.isCurrentOnList(), dto.getMinLength(), dto.getMaxLength(), component);
+                    int orderOnList = dto.isCurrentOnList() ? (dto.getOrderOnList() != null && dto.getOrderOnList() > 0 ? dto.getOrderOnList() : getNextOrderOnList(component)) : 0;
+                    FieldEntity field = new FieldEntity(uuid, dto.getName(), dto.getType(), dto.isFilterable(), dto.isCurrentOnList(), orderOnList, dto.getMinLength(), dto.getMaxLength(), component);
                     FieldEntity saved = fieldRepository.save(field);
-                    FieldDTO result = new FieldDTO(saved.getUuid(), saved.getName(), saved.getType(), saved.isFilterable(), saved.isCurrentOnList(), saved.getMinLength(), saved.getMaxLength());
+                    FieldDTO result = new FieldDTO(saved.getUuid(), saved.getName(), saved.getType(), saved.isFilterable(), saved.isCurrentOnList(), saved.getOrderOnList(), saved.getMinLength(), saved.getMaxLength());
                     return ResponseEntity.ok(result);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -112,11 +124,32 @@ public class ComponentController {
                     field.setType(dto.getType());
                     field.setFilterable(dto.isFilterable());
                     field.setCurrentOnList(dto.isCurrentOnList());
+                    if (dto.isCurrentOnList()) {
+                        field.setOrderOnList(dto.getOrderOnList() != null && dto.getOrderOnList() > 0 ? dto.getOrderOnList() : getNextOrderOnList(field.getComponent()));
+                    } else {
+                        field.setOrderOnList(0);
+                    }
                     field.setMinLength(dto.getMinLength());
                     field.setMaxLength(dto.getMaxLength());
                     FieldEntity updated = fieldRepository.save(field);
-                    FieldDTO result = new FieldDTO(updated.getUuid(), updated.getName(), updated.getType(), updated.isFilterable(), updated.isCurrentOnList(), updated.getMinLength(), updated.getMaxLength());
+                    FieldDTO result = new FieldDTO(updated.getUuid(), updated.getName(), updated.getType(), updated.isFilterable(), updated.isCurrentOnList(), updated.getOrderOnList(), updated.getMinLength(), updated.getMaxLength());
                     return ResponseEntity.ok(result);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{componentId}/fields/reorder")
+    public ResponseEntity<Void> reorderFields(@PathVariable String componentId, @RequestBody List<FieldOrderDTO> fields) {
+        return componentRepository.findByUuid(componentId)
+                .map(component -> {
+                    fields.forEach(dto -> fieldRepository.findByUuid(dto.getId())
+                            .filter(field -> field.getComponent().getUuid().equals(componentId))
+                            .ifPresent(field -> {
+                                field.setOrderOnList(dto.getOrderOnList() != null ? dto.getOrderOnList() : field.getOrderOnList());
+                                fieldRepository.save(field);
+                            })
+                    );
+                    return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

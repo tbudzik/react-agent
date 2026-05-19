@@ -47,6 +47,23 @@ export async function updateField(
   }
 }
 
+export async function reorderFields(
+  componentId: string,
+  payload: Array<{ id: string; orderOnList: number }>
+): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_URL}/${componentId}/fields/reorder`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return response.ok;
+  } catch (error) {
+    console.error(`Failed to reorder fields for component ${componentId}:`, error);
+    return false;
+  }
+}
+
 export async function deleteField(componentId: string, fieldId: string): Promise<boolean> {
   try {
     const response = await fetch(`${API_URL}/${componentId}/fields/${fieldId}`, { method: 'DELETE' });

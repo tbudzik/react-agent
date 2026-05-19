@@ -25,6 +25,9 @@ public class FieldEntity {
     @Column(nullable = false)
     private boolean currentOnList = false;
 
+    @Column(name = "order_on_list", nullable = false)
+    private Integer orderOnList = 0;
+
     @Column(name = "min_length")
     private Integer minLength;
 
@@ -37,12 +40,13 @@ public class FieldEntity {
 
     public FieldEntity() {}
 
-    public FieldEntity(String uuid, String name, String type, boolean filterable, boolean currentOnList, Integer minLength, Integer maxLength, ComponentEntity component) {
+    public FieldEntity(String uuid, String name, String type, boolean filterable, boolean currentOnList, Integer orderOnList, Integer minLength, Integer maxLength, ComponentEntity component) {
         this.uuid = uuid;
         this.name = name;
         this.type = type;
         this.filterable = filterable;
         this.currentOnList = currentOnList;
+        this.orderOnList = orderOnList;
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.component = component;
@@ -110,6 +114,14 @@ public class FieldEntity {
 
     public void setCurrentOnList(boolean currentOnList) {
         this.currentOnList = currentOnList;
+    }
+
+    public Integer getOrderOnList() {
+        return orderOnList;
+    }
+
+    public void setOrderOnList(Integer orderOnList) {
+        this.orderOnList = orderOnList;
     }
 
     public ComponentEntity getComponent() {

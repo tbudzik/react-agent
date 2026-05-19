@@ -8,7 +8,7 @@ import {
   getComponent,
   generateComponentFile
 } from './services/componentsApi';
-import { createField, updateField, deleteField } from './services/fieldsApi';
+import { createField, updateField, deleteField, reorderFields } from './services/fieldsApi';
 
 const newComponentTemplate: Omit<ComponentItem, 'id' | 'fields'> = {
   name: '',
@@ -22,6 +22,7 @@ const newFieldTemplate: Omit<Field, 'id'> = {
   type: 'string',
   filterable: false,
   currentOnList: false,
+  orderOnList: 0,
   minLength: null,
   maxLength: null
 };
@@ -49,6 +50,14 @@ function App() {
     () => components.find((item) => item.id === selectedComponentId) ?? null,
     [components, selectedComponentId]
   );
+
+  const currentOnListFields = useMemo(() => {
+    if (!selectedComponent) return [];
+    return selectedComponent.fields
+      .filter((field) => field.currentOnList)
+      .slice()
+      .sort((a, b) => a.orderOnList - b.orderOnList);
+  }, [selectedComponent]);
 
   useEffect(() => {
     const load = async () => {
@@ -140,10 +149,67 @@ function App() {
       type: field.type,
       filterable: field.filterable,
       currentOnList: field.currentOnList,
+      orderOnList: field.orderOnList,
       minLength: field.minLength,
       maxLength: field.maxLength
     });
     setEditingFieldId(field.id);
+  };
+
+  const moveFieldOrder = async (fieldId: string, targetIndex: number) => {
+    if (!selectedComponent) return;
+
+    const currentFields = selectedComponent.fields
+      .filter((field) => field.currentOnList)
+      .slice()
+      .sort((a, b) => a.orderOnList - b.orderOnList);
+
+    const currentIndex = currentFields.findIndex((field) => field.id === fieldId);
+    if (currentIndex === -1) return;
+
+    const nextIndex = Math.max(0, Math.min(currentFields.length - 1, targetIndex));
+    if (currentIndex === nextIndex) return;
+
+    const updatedFields = [...currentFields];
+    const [movedField] = updatedFields.splice(currentIndex, 1);
+    updatedFields.splice(nextIndex, 0, movedField);
+
+    const reordered = updatedFields.map((field, index) => ({
+      ...field,
+      orderOnList: index + 1
+    }));
+
+    const success = await reorderFields(
+      selectedComponent.id,
+      reordered.map((field) => ({ id: field.id, orderOnList: field.orderOnList }))
+    );
+
+    if (success) {
+      const data = await listComponents();
+      setComponents(data);
+    }
+  };
+
+  const handleMoveFieldUp = (fieldId: string) => {
+    if (!selectedComponent) return;
+    const sortedFields = selectedComponent.fields
+      .filter((field) => field.currentOnList)
+      .sort((a, b) => a.orderOnList - b.orderOnList);
+    const index = sortedFields.findIndex((field) => field.id === fieldId);
+    if (index > 0) {
+      moveFieldOrder(fieldId, index - 1);
+    }
+  };
+
+  const handleMoveFieldDown = (fieldId: string) => {
+    if (!selectedComponent) return;
+    const sortedFields = selectedComponent.fields
+      .filter((field) => field.currentOnList)
+      .sort((a, b) => a.orderOnList - b.orderOnList);
+    const index = sortedFields.findIndex((field) => field.id === fieldId);
+    if (index !== -1 && index < sortedFields.length - 1) {
+      moveFieldOrder(fieldId, index + 1);
+    }
   };
 
   const handleFieldDelete = (fieldId: string) => {
@@ -361,6 +427,44 @@ function App() {
 
               {selectedComponent ? (
                 <div className="mt-6 space-y-4">
+                  {currentOnListFields.length ? (
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium text-slate-600">Kolejność pól na liście</p>
+                          <p className="text-sm text-slate-500">Sortowanie działa tylko dla pól z flagą „Obecny na liście”.</p>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {currentOnListFields.map((field, index) => (
+                          <div key={field.id} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+                            <div>
+                              <p className="font-semibold text-slate-900">{field.name}</p>
+                              <p className="text-sm text-slate-500">Pozycja: {index + 1}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleMoveFieldUp(field.id)}
+                                disabled={index === 0}
+                                className="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveFieldDown(field.id)}
+                                disabled={index === currentOnListFields.length - 1}
+                                className="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                ↓
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   {selectedComponent.fields.length ? (
                     selectedComponent.fields.map((field) => (
                       <div key={field.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
