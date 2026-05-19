@@ -7,16 +7,18 @@ public class FieldDTO {
     private String name;
     private String type;
     private boolean filterable;
+    private boolean currentOnList;
     private Integer minLength;
     private Integer maxLength;
 
     public FieldDTO() {}
 
-    public FieldDTO(String id, String name, String type, boolean filterable, Integer minLength, Integer maxLength) {
+    public FieldDTO(String id, String name, String type, boolean filterable, boolean currentOnList, Integer minLength, Integer maxLength) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.filterable = filterable;
+        this.currentOnList = currentOnList;
         this.minLength = minLength;
         this.maxLength = maxLength;
     }
@@ -51,6 +53,14 @@ public class FieldDTO {
 
     public void setFilterable(boolean filterable) {
         this.filterable = filterable;
+    }
+
+    public boolean isCurrentOnList() {
+        return currentOnList;
+    }
+
+    public void setCurrentOnList(boolean currentOnList) {
+        this.currentOnList = currentOnList;
     }
 
     public Integer getMinLength() {

@@ -50,6 +50,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Imię",
                 "string",
                 true,
+                true,
                 2,
                 50,
                 component1
@@ -60,6 +61,7 @@ public class DataInitializer implements CommandLineRunner {
                 "field-2",
                 "Email",
                 "string",
+                true,
                 true,
                 5,
                 100,
@@ -72,6 +74,7 @@ public class DataInitializer implements CommandLineRunner {
                 "field-3",
                 "Data urodzenia",
                 "date",
+                false,
                 false,
                 null,
                 null,

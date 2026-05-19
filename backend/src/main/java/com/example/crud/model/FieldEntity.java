@@ -22,6 +22,9 @@ public class FieldEntity {
     @Column(nullable = false)
     private boolean filterable = false;
 
+    @Column(nullable = false)
+    private boolean currentOnList = false;
+
     @Column(name = "min_length")
     private Integer minLength;
 
@@ -34,11 +37,12 @@ public class FieldEntity {
 
     public FieldEntity() {}
 
-    public FieldEntity(String uuid, String name, String type, boolean filterable, Integer minLength, Integer maxLength, ComponentEntity component) {
+    public FieldEntity(String uuid, String name, String type, boolean filterable, boolean currentOnList, Integer minLength, Integer maxLength, ComponentEntity component) {
         this.uuid = uuid;
         this.name = name;
         this.type = type;
         this.filterable = filterable;
+        this.currentOnList = currentOnList;
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.component = component;
@@ -98,6 +102,14 @@ public class FieldEntity {
 
     public void setMaxLength(Integer maxLength) {
         this.maxLength = maxLength;
+    }
+
+    public boolean isCurrentOnList() {
+        return currentOnList;
+    }
+
+    public void setCurrentOnList(boolean currentOnList) {
+        this.currentOnList = currentOnList;
     }
 
     public ComponentEntity getComponent() {

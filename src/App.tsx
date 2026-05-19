@@ -21,6 +21,7 @@ const newFieldTemplate: Omit<Field, 'id'> = {
   name: '',
   type: 'string',
   filterable: false,
+  currentOnList: false,
   minLength: null,
   maxLength: null
 };
@@ -138,6 +139,7 @@ function App() {
       name: field.name,
       type: field.type,
       filterable: field.filterable,
+      currentOnList: field.currentOnList,
       minLength: field.minLength,
       maxLength: field.maxLength
     });
@@ -384,8 +386,9 @@ function App() {
                             </button>
                           </div>
                         </div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        <div className="mt-3 grid gap-2 sm:grid-cols-4">
                           <p className="text-sm text-slate-600">Filtr: {field.filterable ? 'Tak' : 'Nie'}</p>
+                          <p className="text-sm text-slate-600">Obecny na liście: {field.currentOnList ? 'Tak' : 'Nie'}</p>
                           <p className="text-sm text-slate-600">Min dł.: {field.minLength ?? '—'}</p>
                           <p className="text-sm text-slate-600">Max dł.: {field.maxLength ?? '—'}</p>
                         </div>
@@ -431,6 +434,15 @@ function App() {
                             className="h-4 w-4 rounded border-slate-300 text-sky-600"
                           />
                           <span className="text-sm text-slate-700">Dostępne na filtrach</span>
+                        </label>
+                        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={fieldForm.currentOnList}
+                            onChange={(event) => setFieldForm({ ...fieldForm, currentOnList: event.target.checked })}
+                            className="h-4 w-4 rounded border-slate-300 text-sky-600"
+                          />
+                          <span className="text-sm text-slate-700">Obecny na liście</span>
                         </label>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">

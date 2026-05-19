@@ -26,7 +26,7 @@ public class ComponentController {
 
     private ComponentDTO entityToDTO(ComponentEntity entity) {
         List<FieldDTO> fieldDTOs = entity.getFields().stream()
-                .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.getMinLength(), f.getMaxLength()))
+                .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getMinLength(), f.getMaxLength()))
                 .collect(Collectors.toList());
         return new ComponentDTO(entity.getUuid(), entity.getName(), entity.isExportCsv(), entity.isEditable(), entity.isCopyable(), fieldDTOs);
     }
@@ -83,7 +83,7 @@ public class ComponentController {
         return componentRepository.findByUuid(componentId)
                 .map(entity -> {
                     List<FieldDTO> fields = entity.getFields().stream()
-                            .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.getMinLength(), f.getMaxLength()))
+                            .map(f -> new FieldDTO(f.getUuid(), f.getName(), f.getType(), f.isFilterable(), f.isCurrentOnList(), f.getMinLength(), f.getMaxLength()))
                             .collect(Collectors.toList());
                     return ResponseEntity.ok(fields);
                 })
@@ -95,9 +95,9 @@ public class ComponentController {
         return componentRepository.findByUuid(componentId)
                 .map(component -> {
                     String uuid = "field-" + System.currentTimeMillis();
-                    FieldEntity field = new FieldEntity(uuid, dto.getName(), dto.getType(), dto.isFilterable(), dto.getMinLength(), dto.getMaxLength(), component);
+                    FieldEntity field = new FieldEntity(uuid, dto.getName(), dto.getType(), dto.isFilterable(), dto.isCurrentOnList(), dto.getMinLength(), dto.getMaxLength(), component);
                     FieldEntity saved = fieldRepository.save(field);
-                    FieldDTO result = new FieldDTO(saved.getUuid(), saved.getName(), saved.getType(), saved.isFilterable(), saved.getMinLength(), saved.getMaxLength());
+                    FieldDTO result = new FieldDTO(saved.getUuid(), saved.getName(), saved.getType(), saved.isFilterable(), saved.isCurrentOnList(), saved.getMinLength(), saved.getMaxLength());
                     return ResponseEntity.ok(result);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -111,10 +111,11 @@ public class ComponentController {
                     field.setName(dto.getName());
                     field.setType(dto.getType());
                     field.setFilterable(dto.isFilterable());
+                    field.setCurrentOnList(dto.isCurrentOnList());
                     field.setMinLength(dto.getMinLength());
                     field.setMaxLength(dto.getMaxLength());
                     FieldEntity updated = fieldRepository.save(field);
-                    FieldDTO result = new FieldDTO(updated.getUuid(), updated.getName(), updated.getType(), updated.isFilterable(), updated.getMinLength(), updated.getMaxLength());
+                    FieldDTO result = new FieldDTO(updated.getUuid(), updated.getName(), updated.getType(), updated.isFilterable(), updated.isCurrentOnList(), updated.getMinLength(), updated.getMaxLength());
                     return ResponseEntity.ok(result);
                 })
                 .orElse(ResponseEntity.notFound().build());

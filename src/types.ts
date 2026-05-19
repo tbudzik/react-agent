@@ -5,6 +5,7 @@ export type Field = {
   name: string;
   type: FieldType;
   filterable: boolean;
+  currentOnList: boolean;
   minLength: number | null;
   maxLength: number | null;
 };

@@ -43,6 +43,7 @@ public class GenerateController {
             builder.append("- Nazwa: ").append(field.getName()).append("\n");
             builder.append("  Typ: ").append(field.getType()).append("\n");
             builder.append("  Filtr: ").append(field.isFilterable() ? "Tak" : "Nie").append("\n");
+            builder.append("  Obecny na liście: ").append(field.isCurrentOnList() ? "Tak" : "Nie").append("\n");
             builder.append("  Min dł.: ").append(field.getMinLength() != null ? field.getMinLength() : "-").append("\n");
             builder.append("  Max dł.: ").append(field.getMaxLength() != null ? field.getMaxLength() : "-").append("\n\n");
         });
