@@ -43,6 +43,7 @@ public class GenerateController {
         component.getFields().forEach(field -> {
             builder.append("- Nazwa: ").append(field.getName()).append("\n");
             builder.append("  Typ: ").append(field.getType()).append("\n");
+            builder.append("  Tłumaczenie polskie: ").append(field.getPolishTranslation() != null ? field.getPolishTranslation() : "-").append("\n");
             builder.append("  Filtr: ").append(field.isFilterable() ? "Tak" : "Nie").append("\n");
             builder.append("  Obecny na liście: ").append(field.isCurrentOnList() ? "Tak" : "Nie").append("\n");
             builder.append("  Min dł.: ").append(field.getMinLength() != null ? field.getMinLength() : "-").append("\n");

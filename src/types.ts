@@ -1,4 +1,4 @@
-export type FieldType = 'string' | 'number' | 'date';
+export type FieldType = 'string' | 'number' | 'date' | 'dictionary';
 
 export type Field = {
   id: string;
@@ -7,6 +7,8 @@ export type Field = {
   filterable: boolean;
   currentOnList: boolean;
   orderOnList: number;
+  polishTranslation: string;
+  dictionaryPlaceholder: string;
   minLength: number | null;
   maxLength: number | null;
 };

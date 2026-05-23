@@ -25,6 +25,12 @@ public class FieldEntity {
     @Column(nullable = false)
     private boolean currentOnList = false;
 
+    @Column(name = "polish_translation")
+    private String polishTranslation;
+
+    @Column(name = "dictionary_placeholder", length = 20000)
+    private String dictionaryPlaceholder;
+
     @Column(name = "order_on_list", nullable = false)
     private Integer orderOnList = 0;
 
@@ -40,12 +46,14 @@ public class FieldEntity {
 
     public FieldEntity() {}
 
-    public FieldEntity(String uuid, String name, String type, boolean filterable, boolean currentOnList, Integer orderOnList, Integer minLength, Integer maxLength, ComponentEntity component) {
+    public FieldEntity(String uuid, String name, String type, boolean filterable, boolean currentOnList, String polishTranslation, String dictionaryPlaceholder, Integer orderOnList, Integer minLength, Integer maxLength, ComponentEntity component) {
         this.uuid = uuid;
         this.name = name;
         this.type = type;
         this.filterable = filterable;
         this.currentOnList = currentOnList;
+        this.polishTranslation = polishTranslation;
+        this.dictionaryPlaceholder = dictionaryPlaceholder;
         this.orderOnList = orderOnList;
         this.minLength = minLength;
         this.maxLength = maxLength;
@@ -114,6 +122,22 @@ public class FieldEntity {
 
     public void setCurrentOnList(boolean currentOnList) {
         this.currentOnList = currentOnList;
+    }
+
+    public String getPolishTranslation() {
+        return polishTranslation;
+    }
+
+    public void setPolishTranslation(String polishTranslation) {
+        this.polishTranslation = polishTranslation;
+    }
+
+    public String getDictionaryPlaceholder() {
+        return dictionaryPlaceholder;
+    }
+
+    public void setDictionaryPlaceholder(String dictionaryPlaceholder) {
+        this.dictionaryPlaceholder = dictionaryPlaceholder;
     }
 
     public Integer getOrderOnList() {

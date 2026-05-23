@@ -8,18 +8,22 @@ public class FieldDTO {
     private String type;
     private boolean filterable;
     private boolean currentOnList;
+    private String polishTranslation;
+    private String dictionaryPlaceholder;
     private Integer orderOnList;
     private Integer minLength;
     private Integer maxLength;
 
     public FieldDTO() {}
 
-    public FieldDTO(String id, String name, String type, boolean filterable, boolean currentOnList, Integer orderOnList, Integer minLength, Integer maxLength) {
+    public FieldDTO(String id, String name, String type, boolean filterable, boolean currentOnList, String polishTranslation, String dictionaryPlaceholder, Integer orderOnList, Integer minLength, Integer maxLength) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.filterable = filterable;
         this.currentOnList = currentOnList;
+        this.polishTranslation = polishTranslation;
+        this.dictionaryPlaceholder = dictionaryPlaceholder;
         this.orderOnList = orderOnList;
         this.minLength = minLength;
         this.maxLength = maxLength;
@@ -63,6 +67,22 @@ public class FieldDTO {
 
     public void setCurrentOnList(boolean currentOnList) {
         this.currentOnList = currentOnList;
+    }
+
+    public String getPolishTranslation() {
+        return polishTranslation;
+    }
+
+    public void setPolishTranslation(String polishTranslation) {
+        this.polishTranslation = polishTranslation;
+    }
+
+    public String getDictionaryPlaceholder() {
+        return dictionaryPlaceholder;
+    }
+
+    public void setDictionaryPlaceholder(String dictionaryPlaceholder) {
+        this.dictionaryPlaceholder = dictionaryPlaceholder;
     }
 
     public Integer getOrderOnList() {

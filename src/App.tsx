@@ -23,6 +23,8 @@ const newFieldTemplate: Omit<Field, 'id'> = {
   filterable: false,
   currentOnList: false,
   orderOnList: 0,
+  polishTranslation: '',
+  dictionaryPlaceholder: '',
   minLength: null,
   maxLength: null
 };
@@ -35,6 +37,8 @@ function formatFieldType(type: FieldType) {
       return 'Liczba';
     case 'date':
       return 'Data';
+    case 'dictionary':
+      return 'Słownik';
   }
 }
 
@@ -150,6 +154,8 @@ function App() {
       filterable: field.filterable,
       currentOnList: field.currentOnList,
       orderOnList: field.orderOnList,
+      polishTranslation: field.polishTranslation,
+      dictionaryPlaceholder: field.dictionaryPlaceholder,
       minLength: field.minLength,
       maxLength: field.maxLength
     });
@@ -242,7 +248,7 @@ function App() {
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-sky-600">Panel CRUD</p>
+            <p className="text-sm uppercase tracking-[0.25em] text-sky-600">Generator zestawów formatek SPK-CRUD</p>
             <h1 className="text-3xl font-semibold">Zarządzanie komponentami i polami</h1>
           </div>
           <div className="max-w-xl text-sm text-slate-600">
@@ -490,9 +496,11 @@ function App() {
                             </button>
                           </div>
                         </div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                        <div className="mt-3 grid gap-2 sm:grid-cols-5">
                           <p className="text-sm text-slate-600">Filtr: {field.filterable ? 'Tak' : 'Nie'}</p>
                           <p className="text-sm text-slate-600">Obecny na liście: {field.currentOnList ? 'Tak' : 'Nie'}</p>
+                          <p className="text-sm text-slate-600">Tłumaczenie: {field.polishTranslation || '—'}</p>
+                          <p className="text-sm text-slate-600">Zaślepka słownika: {field.dictionaryPlaceholder || '—'}</p>
                           <p className="text-sm text-slate-600">Min dł.: {field.minLength ?? '—'}</p>
                           <p className="text-sm text-slate-600">Max dł.: {field.maxLength ?? '—'}</p>
                         </div>
@@ -528,6 +536,7 @@ function App() {
                             <option value="string">String</option>
                             <option value="number">Liczba</option>
                             <option value="date">Data</option>
+                            <option value="dictionary">Słownik</option>
                           </select>
                         </div>
                         <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
@@ -549,35 +558,59 @@ function App() {
                           <span className="text-sm text-slate-700">Obecny na liście</span>
                         </label>
                       </div>
-                      <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700">Tłumaczenie polskie</label>
+                          <input
+                            type="text"
+                            value={fieldForm.polishTranslation}
+                            onChange={(event) => setFieldForm({ ...fieldForm, polishTranslation: event.target.value })}
+                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700">Zaślepka słownika</label>
+                          <input
+                            type="text"
+                            maxLength={20000}
+                            value={fieldForm.dictionaryPlaceholder}
+                            onChange={(event) => setFieldForm({ ...fieldForm, dictionaryPlaceholder: event.target.value })}
+                            disabled={fieldForm.type !== 'dictionary'}
+                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm font-medium text-slate-700">Minimalna długość</label>
                           <input
                             type="number"
                             min={0}
                             value={fieldForm.minLength ?? ''}
+                            disabled={fieldForm.type !== 'string' && fieldForm.type !== 'number'}
                             onChange={(event) =>
                               setFieldForm({
                                 ...fieldForm,
                                 minLength: event.target.value ? Number(event.target.value) : null
                               })
                             }
-                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
                           />
                         </div>
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-3">
                         <div>
                           <label className="block text-sm font-medium text-slate-700">Maksymalna długość</label>
                           <input
                             type="number"
                             min={0}
                             value={fieldForm.maxLength ?? ''}
+                            disabled={fieldForm.type !== 'string' && fieldForm.type !== 'number'}
                             onChange={(event) =>
                               setFieldForm({
                                 ...fieldForm,
                                 maxLength: event.target.value ? Number(event.target.value) : null
                               })
                             }
-                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
                           />
                         </div>
                       </div>
